@@ -4,6 +4,16 @@ A single-page app that estimates your New Zealand end-of-year income tax **refun
 
 **Live:** https://rlaput.github.io/nz-tax-refund-estimator/
 
+![Screenshot: two employers, one on the SB secondary code, giving an estimated tax bill](docs/screenshot.png)
+
+## How to use
+
+1. **Pick the tax year.** 2025/26 is the latest completed year; 2026/27 is in progress.
+2. **Add each employer or payer.** In [myIR](https://myir.ird.govt.nz), go to **My income → Income summary** and copy each payer's *gross earnings* and *PAYE* into its own row. Pasting values like `$12,345.67` works. Set the months you were paid, and the tax code if you know it.
+3. **Optionally add interest and dividends** from the same myIR screen: gross amount, RWT and imputation credits.
+4. **Answer the IETC questions**, saying whether you had a main benefit, Working for Families, NZ Super or non-residence, and for how many months.
+5. **Read the result.** The panel shows the refund or amount to pay, how it adds up, a table for each payer, and notes on what's driving the result.
+
 ## What it does
 
 - **Multiple employers and payers.** Add one row per employer, ACC weekly compensation, benefit or NZ Super payer. Each row has gross earnings, PAYE, tax code and the months worked. Income is combined and taxed through the progressive bands, which is where over- or under-deductions from secondary tax codes (SB/S/SH/ST/SA) show up.
@@ -25,6 +35,35 @@ The spreadsheet's bands were already correct for 2025/26. They were last changed
 Sources: [IRD tax rates for individuals](https://www.ird.govt.nz/income-tax/income-tax-for-individuals/tax-codes-and-tax-rates-for-individuals/tax-rates-for-individuals), [IRD IETC](https://www.ird.govt.nz/ietc), and the IRD Payroll Calculations & Business Rules Specification 2026 (ACC levy).
 
 Not covered: student loan, Working for Families entitlement, self-employment, rental or overseas income, and donation tax credits.
+
+## Differences from the spreadsheet
+
+| | Spreadsheet | This app |
+|---|---|---|
+| Income sources | One total | One row per employer or payer, plus interest and dividends |
+| ACC earners' levy | Ignored, so refunds are overstated by about 1.67% of income | Included, with excess levy above the cap refunded |
+| IETC pro-rating | By months *worked* | By months *eligible* (IRD's rule): months on a benefit, NZ Super or WFF, or non-resident, reduce it |
+| Tax years | 2025/26 | 2025/26 and 2026/27, set in one config file |
+| Explanation | A single result line | Breakdown, a table per payer, and notes such as secondary-code shortfalls and part-year earnings |
+
+## Project structure
+
+```
+src/
+  tax/
+    years.ts         # tax bands, IETC and ACC parameters for each tax year
+    engine.ts        # pure calculation engine (no DOM)
+    engine.test.ts   # Vitest unit tests, including a check against the spreadsheet formula
+  ui/
+    form.ts          # input form markup
+    results.ts       # results panel
+    info.ts          # tax bands, explainers, disclaimer
+    state.ts         # state, localStorage autosave, money parsing
+  main.ts            # wiring and event handling
+  styles.css
+index.html
+.github/workflows/deploy.yml   # test, build and deploy to GitHub Pages
+```
 
 ## Development
 

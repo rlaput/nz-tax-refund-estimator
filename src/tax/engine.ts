@@ -215,7 +215,8 @@ export function calculate(input: CalcInput): CalcResult {
   else if (eligibleMonths <= 0) ietcReason = anyIneligible ? 'disqualified' : 'no-eligible-months';
   else {
     ietcAmount = ietc(taxableIncome, eligibleMonths, year);
-    ietcReason = 'applied';
+    // At the top of the abatement range the credit is fully phased out.
+    ietcReason = ietcAmount > 0 ? 'applied' : 'income-too-high';
   }
   // IETC can’t take income tax below zero.
   ietcAmount = Math.min(ietcAmount, tax);

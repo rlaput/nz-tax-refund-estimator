@@ -40,7 +40,7 @@ function ietcNote(r: CalcResult): string {
     case 'income-too-low':
       return `IETC not applicable: income is below ${fmt(r.year.ietc.minIncome)}.`;
     case 'income-too-high':
-      return `IETC not applicable: income is above ${fmt(r.year.ietc.maxIncome)}.`;
+      return `IETC not applicable: the credit is fully phased out by ${fmt(r.year.ietc.maxIncome)} of income.`;
   }
 }
 

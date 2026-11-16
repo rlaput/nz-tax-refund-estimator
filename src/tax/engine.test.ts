@@ -150,6 +150,7 @@ describe('calculate', () => {
     expect(r.incomeTax).toBe(13_220.5);
     expect(r.levy.owed).toBe(1_169);
     expect(r.ietc.amount).toBe(0);
+    expect(r.ietc.reason).toBe('income-too-high');
     expect(r.result).toBe(-3_462.5);
     expect(r.insights.some((i) => i.kind === 'warn' && i.text.includes('Side job'))).toBe(true);
   });
