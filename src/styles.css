@@ -232,3 +232,23 @@ table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nu
   .card { box-shadow: none; border-color: #ccc; break-inside: avoid; margin-bottom: 12px; }
   .output { position: static; }
 }
+
+/* Field help */
+.label-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; min-height: 24px; }
+.help-btn {
+  flex: none; display: inline-grid; place-items: center; width: 24px; height: 24px; padding: 0;
+  border: 0; border-radius: 50%; background: transparent; color: var(--accent); font-size: 1rem; line-height: 1; cursor: pointer;
+}
+.help-btn:hover, .help-btn[aria-expanded='true'] { background: var(--accent-soft); }
+.payer-head .help-btn, .check-row .help-btn { width: 32px; height: 32px; }
+.help {
+  font-size: 0.85rem; line-height: 1.45; color: var(--text); background: var(--accent-soft);
+  border-left: 3px solid var(--accent); border-radius: 8px; padding: 8px 10px; margin: 2px 0 4px;
+}
+.help[hidden] { display: none; }
+.help-block { margin: -4px 0 12px; }
+.check-row { display: flex; align-items: flex-start; gap: 6px; }
+.check-row .check { flex: 1; }
+.check-row .help-btn { margin-top: 10px; }
+.check-row + .help-block { margin-top: 8px; }
+@media print { .help-btn { display: none; } }

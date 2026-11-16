@@ -21,6 +21,7 @@ A single-page app that estimates your New Zealand end-of-year income tax **refun
 - **IETC.** Up to $520, reduced 13c per dollar from $66k to $70k. It drops by 1/12 for each month you received a main benefit, NZ Super or Working for Families, or weren't NZ resident. ME tax code users are handled automatically, because their lower PAYE already reflects the credit.
 - **Interest and dividends (optional).** These count toward taxable income, with credit for RWT and imputation. Imputation credits are capped so they can't create a refund on their own.
 - **Explains the result.** Shows a breakdown, the PAYE rate for each payer, and notes on what is driving the result (secondary-code shortfalls, part-year earners, levy over the cap, and so on).
+- **Help on every field.** Tap ⓘ beside a field to see where to find the value in myIR, or on a payslip or bank/dividend statement.
 - Entries autosave in your browser (localStorage only; nothing is sent anywhere). Works on phones, supports dark mode, and has a print/PDF layout.
 
 ## Tax years and rates
@@ -58,6 +59,7 @@ src/
     form.ts          # input form markup
     results.ts       # results panel
     info.ts          # tax bands, explainers, disclaimer
+    help.ts          # per-field help: where to find each value in myIR
     state.ts         # state, localStorage autosave, money parsing
   main.ts            # wiring and event handling
   styles.css

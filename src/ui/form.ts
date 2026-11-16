@@ -1,14 +1,15 @@
 import { INCOME_TYPES, TAX_CODES, type CalcInput, type Payer } from '../tax/engine';
-import { TAX_YEARS, getYear, monthLabel, yearRangeLabel } from '../tax/years';
+import { TAX_YEARS, getYear, monthLabel, yearRangeLabel, type TaxYear } from '../tax/years';
+import { labelWithHelp, openHelp, helpText, type HelpKey } from './help';
 import { formatMoneyInput } from './state';
 
 export const esc = (s: string): string =>
   s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 
-function moneyField(id: string, label: string, value: number, attrs: string, hint = ''): string {
+function moneyField(id: string, label: string, value: number, attrs: string, help: HelpKey, y: TaxYear, hint = ''): string {
   return `
     <div class="field">
-      <label for="${id}">${label}</label>
+      ${labelWithHelp(id, label, help, y)}
       <div class="money">
         <span aria-hidden="true">$</span>
         <input id="${id}" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00"
@@ -27,42 +28,53 @@ function payerCard(p: Payer, index: number, state: CalcInput): string {
   const a = (key: string) => `data-payer="${esc(p.id)}" data-key="${key}"`;
   const idp = `payer-${esc(p.id)}`;
   const canRemove = state.payers.length > 1;
+  const y = getYear(state.yearId);
+  const nameHelp = `${idp}-name-help`;
+  const levyHelp = `${idp}-levy-help`;
   return `
   <fieldset class="payer card-inner" aria-label="Payer ${index + 1}">
     <div class="payer-head">
       <span class="payer-num" aria-hidden="true">${index + 1}</span>
       <input id="${idp}-name" class="payer-name" type="text" value="${esc(p.name)}" ${a('name')}
         aria-label="Payer ${index + 1} name" placeholder="Employer name" maxlength="80" />
+      <button type="button" class="help-btn" data-action="toggle-help" data-help="${nameHelp}" aria-expanded="${openHelp.has(nameHelp)}"
+        aria-controls="${nameHelp}" aria-label="About the payer name" title="About the payer name">ⓘ</button>
       ${canRemove ? `<button type="button" class="btn-icon" data-action="remove-payer" data-id="${esc(p.id)}" aria-label="Remove payer ${index + 1}" title="Remove">✕</button>` : ''}
     </div>
+    <div id="${nameHelp}" class="help help-block" ${openHelp.has(nameHelp) ? '' : 'hidden'}>${helpText('name', y)}</div>
     <div class="grid">
       <div class="field">
-        <label for="${idp}-type">Income type</label>
+        ${labelWithHelp(`${idp}-type`, 'Income type', 'incomeType', y)}
         <select id="${idp}-type" ${a('incomeType')}>
           ${INCOME_TYPES.map((t) => `<option value="${t.value}" ${t.value === p.incomeType ? 'selected' : ''}>${esc(t.label)}</option>`).join('')}
         </select>
       </div>
       <div class="field">
-        <label for="${idp}-code">Tax code <span class="opt">(optional)</span></label>
+        ${labelWithHelp(`${idp}-code`, 'Tax code <span class="opt">(optional)</span>', 'taxCode', y)}
         <select id="${idp}-code" ${a('taxCode')}>
           ${TAX_CODES.map((c) => `<option value="${c}" ${c === p.taxCode ? 'selected' : ''}>${c || 'Not sure'}</option>`).join('')}
         </select>
       </div>
       <div class="field">
-        <label for="${idp}-start">From</label>
+        ${labelWithHelp(`${idp}-start`, 'From', 'months', y)}
         <select id="${idp}-start" ${a('startMonth')}>${monthOptions(state.yearId, p.startMonth)}</select>
       </div>
       <div class="field">
-        <label for="${idp}-end">To</label>
+        ${labelWithHelp(`${idp}-end`, 'To', 'months', y)}
         <select id="${idp}-end" ${a('endMonth')}>${monthOptions(state.yearId, p.endMonth)}</select>
       </div>
-      ${moneyField(`${idp}-gross`, 'Gross earnings', p.gross, a('gross'))}
-      ${moneyField(`${idp}-paye`, 'PAYE / tax deducted', p.paye, a('paye'))}
+      ${moneyField(`${idp}-gross`, 'Gross earnings', p.gross, a('gross'), 'gross', y)}
+      ${moneyField(`${idp}-paye`, 'PAYE / tax deducted', p.paye, a('paye'), 'paye', y)}
     </div>
-    <label class="check">
-      <input type="checkbox" ${a('levyLiable')} ${p.levyLiable ? 'checked' : ''} />
-      <span>ACC earners’ levy was deducted from this income <span class="hint-inline">(it is for wages and ACC compensation)</span></span>
-    </label>
+    <div class="check-row">
+      <label class="check">
+        <input type="checkbox" ${a('levyLiable')} ${p.levyLiable ? 'checked' : ''} />
+        <span>ACC earners’ levy was deducted from this income <span class="hint-inline">(it is for wages and ACC compensation)</span></span>
+      </label>
+      <button type="button" class="help-btn" data-action="toggle-help" data-help="${levyHelp}" aria-expanded="${openHelp.has(levyHelp)}"
+        aria-controls="${levyHelp}" aria-label="About the ACC earners’ levy" title="About the ACC earners’ levy">ⓘ</button>
+    </div>
+    <div id="${levyHelp}" class="help help-block" ${openHelp.has(levyHelp) ? '' : 'hidden'}>${helpText('levy', y)}</div>
   </fieldset>`;
 }
 
@@ -86,7 +98,11 @@ export function renderForm(state: CalcInput): string {
         </label>`,
       ).join('')}
     </div>
-    <p class="hint">${yearRangeLabel(year)}</p>
+    <p class="hint">${yearRangeLabel(year)}${
+      year.status === 'current'
+        ? ' · This year isn’t finished, so use year-to-date figures from myIR or your latest payslip. The result shows where you stand so far, not your final refund.'
+        : ''
+    }</p>
   </section>
 
   <section class="card" aria-labelledby="h-payers">
@@ -113,11 +129,11 @@ export function renderForm(state: CalcInput): string {
       <summary>I earned bank interest or dividends</summary>
       <p class="hint">These are also in myIR under <strong>My income</strong>. They count toward your total income, and the tax already taken off (RWT and imputation credits) is credited back.</p>
       <div class="grid">
-        ${moneyField('o-int', 'Gross interest', o.interestGross, 'data-other="interestGross"')}
-        ${moneyField('o-int-rwt', 'RWT on interest', o.interestRwt, 'data-other="interestRwt"')}
-        ${moneyField('o-div', 'Gross dividends', o.dividendGross, 'data-other="dividendGross"', 'Includes imputation credits and RWT.')}
-        ${moneyField('o-div-ic', 'Imputation credits', o.dividendImputation, 'data-other="dividendImputation"')}
-        ${moneyField('o-div-rwt', 'RWT on dividends', o.dividendRwt, 'data-other="dividendRwt"')}
+        ${moneyField('o-int', 'Gross interest', o.interestGross, 'data-other="interestGross"', 'interestGross', year)}
+        ${moneyField('o-int-rwt', 'RWT on interest', o.interestRwt, 'data-other="interestRwt"', 'interestRwt', year)}
+        ${moneyField('o-div', 'Gross dividends', o.dividendGross, 'data-other="dividendGross"', 'dividendGross', year, 'Includes imputation credits and RWT.')}
+        ${moneyField('o-div-ic', 'Imputation credits', o.dividendImputation, 'data-other="dividendImputation"', 'dividendImputation', year)}
+        ${moneyField('o-div-rwt', 'RWT on dividends', o.dividendRwt, 'data-other="dividendRwt"', 'dividendRwt', year)}
       </div>
     </details>
   </section>
@@ -134,7 +150,7 @@ export function renderForm(state: CalcInput): string {
     ${
       showMonths
         ? `<div class="field narrow">
-            <label for="ietc-months">For how many months did any of these apply?</label>
+            ${labelWithHelp('ietc-months', 'For how many months did any of these apply?', 'ietcMonths', year)}
             <input id="ietc-months" type="number" min="0" max="12" step="1" inputmode="numeric" value="${ie.ineligibleMonths}" data-ietc="ineligibleMonths" />
             <p class="hint">IETC is reduced by 1/12 for each of these months. Choose 12 if it applied all year.</p>
           </div>`

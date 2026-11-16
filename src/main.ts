@@ -1,6 +1,7 @@
 import './styles.css';
 import { INCOME_TYPES, calculate, payerMonths, type CalcInput, type IncomeType, type Payer } from './tax/engine';
 import { renderForm } from './ui/form';
+import { openHelp } from './ui/help';
 import { renderInfo } from './ui/info';
 import { renderResults } from './ui/results';
 import { clearState, defaultState, formatMoneyInput, loadState, newPayer, parseMoney, saveState } from './ui/state';
@@ -135,6 +136,17 @@ document.addEventListener('click', (e) => {
   const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-action]');
   if (!btn) return;
   switch (btn.dataset.action) {
+    case 'toggle-help': {
+      const id = btn.dataset.help!;
+      const panel = document.getElementById(id);
+      if (!panel) return;
+      const open = panel.hidden;
+      panel.hidden = !open;
+      btn.setAttribute('aria-expanded', String(open));
+      if (open) openHelp.add(id);
+      else openHelp.delete(id);
+      break;
+    }
     case 'add-payer': {
       if (state.payers.length >= 20) return;
       const p = newPayer(state.payers.length);
