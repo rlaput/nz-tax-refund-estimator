@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en-NZ">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NZ Tax Refund Estimator</title>
+    <meta name="description" content="Estimate your New Zealand end-of-year tax refund or bill from your myIR figures, including multiple employers, ACC earners' levy and the IETC." />
+    <meta name="theme-color" content="#0f766e" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f766e'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle' fill='white' font-family='system-ui,sans-serif' font-weight='700'%3E$%3C/text%3E%3C/svg%3E" />
+  </head>
+  <body>
+    <a class="skip" href="#form">Skip to calculator</a>
+    <header class="site-header">
+      <div class="wrap">
+        <p class="eyebrow">New Zealand · Individuals</p>
+        <h1>Tax Refund Estimator</h1>
+        <p class="tagline">Estimate your end-of-year tax refund or bill from your myIR figures, including when you’ve had more than one employer.</p>
+      </div>
+    </header>
+
+    <main class="wrap layout">
+      <form id="form" class="inputs" novalidate onsubmit="return false"></form>
+      <aside class="output" aria-label="Your estimate">
+        <div id="results" class="card results" tabindex="-1"></div>
+      </aside>
+      <div id="info" class="info-col"></div>
+    </main>
+
+    <div id="mobile-summary" class="mobile-summary" hidden></div>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <p>Estimate only, not tax advice. Not affiliated with Inland Revenue. Rates sourced from <a href="https://www.ird.govt.nz" target="_blank" rel="noopener">ird.govt.nz</a>.</p>
+      </div>
+    </footer>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
